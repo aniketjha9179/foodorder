@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet, Image, ScrollView } from "react-native";
+import { Text, View, StyleSheet, Image, ScrollView, FlatList } from "react-native";
 
 import EditScreenInfo from "@/src/components/EditScreenInfo";
 // import { } from "@/src/components/Themed";d
@@ -10,11 +10,14 @@ import products from "@/assets/data/products";
 
 export default function TabOneScreen() {
   return (
-    <ScrollView>
-      <ProductListItem  product={products[0]} />
-      <ProductListItem  product={products[1]}/>
-
-    </ScrollView>
+    <View>
+      <FlatList 
+      data={products}
+      renderItem={({item})=> <ProductListItem  product={item}  />}
+      numColumns={2}
+      contentContainerStyle={{gap:10}}
+      />
+    </View>
   );
 }
 

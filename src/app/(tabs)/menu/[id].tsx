@@ -1,21 +1,29 @@
-import { Image, StyleSheet, Text, View,Pressable } from "react-native";
+import { Image, StyleSheet, Text, View, Pressable } from "react-native";
 import React, { useState } from "react";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import products from "@/assets/data/products";
 import orders from "@/assets/data/orders";
 import Button from "@/src/components/Button";
+import { useCart } from "@/src/provider/CartProvider";
+import { PizzaSize } from "@/src/types";
 
+
+const sizes:PizzaSize[] = ["S", "M", "L", "XL"];
 
 const productDetailScreen = () => {
-  const [selectedSize, setSelectedSize] = useState("M");
+  const router=useRouter()
+  const [selectedSize, setSelectedSize] = useState<PizzaSize>("M");
   const { id } = useLocalSearchParams();
-  const sizes = ["S", "M", "L", "XL"];
-  const addToCart = () => {
-    console.warn("adding to cart , size",selectedSize  );
-    
-    
-  }
+  const { addItem } = useCart();
 
+  const addToCart = () => {
+    if(!product){
+      return ;
+    }
+    addItem(product,selectedSize);
+    router.push('/cart')
+    // console.warn("adding to cart , size",selectedSize  );
+  };
   const product = products.find((p) => p.id.toString() === id);
   if (!product) {
     return <Text>Product not found</Text>;
@@ -29,9 +37,9 @@ const productDetailScreen = () => {
       <View style={[styles.sizes]}>
         {sizes.map((size) => (
           <Pressable
-          onPress={()=>{
-            setSelectedSize(size)
-          }}
+            onPress={() => {
+              setSelectedSize(size);
+            }}
             key={size}
             style={[
               styles.size,
@@ -44,8 +52,7 @@ const productDetailScreen = () => {
               style={[
                 styles.sizeText,
                 {
-                  color:
-                    selectedSize === size ? "black" : "gray",
+                  color: selectedSize === size ? "black" : "gray",
                 },
               ]}
             >
@@ -55,7 +62,7 @@ const productDetailScreen = () => {
         ))}
       </View>
       <Text style={styles.price}> ${product.price} </Text>
-      <Button  onPress={addToCart} text="Add to cart"/>
+      <Button onPress={addToCart} text="Add to cart" />
     </View>
   );
 };
@@ -75,8 +82,7 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 20,
     fontWeight: "bold",
-    marginTop:'auto'
-
+    marginTop: "auto",
   },
   sizes: {
     flexDirection: "row",
@@ -95,5 +101,4 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
   },
-  
 });

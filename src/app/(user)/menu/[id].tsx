@@ -1,11 +1,11 @@
-import { Image, StyleSheet, Text, View, Pressable } from "react-native";
+import { Image, StyleSheet, Text, View, Pressable, ActivityIndicator } from "react-native";
 import React, { useState } from "react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import products from "@/assets/data/products";
-import orders from "@/assets/data/orders";
+    import orders from "@/assets/data/orders";
 import Button from "@/src/components/Button";
 import { useCart } from "@/src/provider/CartProvider";
 import { PizzaSize } from "@/src/types";
+import { useProduct } from "@/src/api/products";
 
 
 const sizes:PizzaSize[] = ["S", "M", "L", "XL"];
@@ -13,7 +13,10 @@ const sizes:PizzaSize[] = ["S", "M", "L", "XL"];
 const productDetailScreen = () => {
   const router=useRouter()
   const [selectedSize, setSelectedSize] = useState<PizzaSize>("M");
-  const { id } = useLocalSearchParams();
+  const { id:idString } = useLocalSearchParams();
+  const  id = parseFloat(typeof idString==='string'?idString:idString[0]);
+ const {data:product, error, isLoading}= useProduct(id);
+
   const { addItem } = useCart();
 
   const addToCart = () => {
@@ -24,9 +27,13 @@ const productDetailScreen = () => {
     router.push('/cart')
     // console.warn("adding to cart , size",selectedSize  );
   };
-  const product = products.find((p) => p.id.toString() === id);
-  if (!product) {
-    return <Text>Product not found</Text>;
+
+  if (isLoading) {
+    return <ActivityIndicator />;
+  }
+
+  if (error) {
+    return <Text>Failed to fetch products</Text>;
   }
 
   return (
@@ -97,8 +104,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  sizeText: {
-    fontSize: 20,
+  sizeText: { 
+    fontSize: 20, 
     fontWeight: "bold",
   },
 });
